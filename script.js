@@ -4,20 +4,54 @@ var c = document.getElementById("fishtank");
 var ctx = c.getContext("2d");
 var fish = document.getElementById('fishImg');
 var fishLeft = document.getElementById('fishLeft');
-var moneyImg = document.getElementById('money')
-var fishName = document.getElementById('nameInput')
-
+var moneyImg = document.getElementById('money');
+var fishName = document.getElementById('nameInput');
+var ship = document.getElementById('shipImg');
 var moneyText = document.getElementById("moneyText");
 
+let mousePos = { x: 0, y: 0 };
 
 var addFishButton = document.getElementById("add-fish");
+var addShipButton = document.getElementById("add-ship");
 
 addFishButton.addEventListener("click", addFish);
+addShipButton.addEventListener("click", addShip);
 
 var fishes = [];
 var moneys = [];
+var decorations = [];
 
 var interval = setInterval(draw, 10);
+
+c.addEventListener("mousemove", function(evt) {
+    mousePos = getMousePos(c, evt);
+});
+
+c.addEventListener('click', mouseClick);
+
+function mouseClick(){
+    decorations.forEach(element => {
+        if(!element.placed){
+            element.placed = true;
+        }
+    });
+}
+
+class Decoration{
+    constructor(img, posX, posY){
+        this.img = img;
+        this.posX = posX;
+        this.posY = posY;
+        this.placed = false;
+    }
+
+    exist(){
+        if(!this.placed){
+            this.posY = c.height-100;
+            this.posX = mousePos.x - 50;
+        }
+    }
+}
 
 class Money{
     constructor(img, posX, posY, worth){
@@ -160,6 +194,13 @@ function addFish(){
     
 }
 
+function addShip(){
+    if(money >= 50){
+        decorations.push(new Decoration(ship, 0,0));
+        money -= 50;
+    }
+}
+
 function draw(){
     ctx.clearRect(0,0,c.width, c.height);
     
@@ -171,7 +212,12 @@ function draw(){
 
     moneys.forEach(element => {
         element.checkCollision();
-        ctx.drawImage(element.img, element.posX, element.posY, 20, 20)
+        ctx.drawImage(element.img, element.posX, element.posY, 20, 20);
+    })
+
+    decorations.forEach(element => {
+        element.exist();
+        ctx.drawImage(element.img, element.posX, element.posY, 100,100);
     })
 
     moneyText.innerHTML = "Money: " + money;
@@ -179,3 +225,11 @@ function draw(){
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
+
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
