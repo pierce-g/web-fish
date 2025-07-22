@@ -1,15 +1,60 @@
+var money = 100;
+
 var c = document.getElementById("fishtank");
 var ctx = c.getContext("2d");
 var fish = document.getElementById('fishImg');
 var fishLeft = document.getElementById('fishLeft');
+var moneyImg = document.getElementById('money')
+
+var moneyText = document.getElementById("moneyText");
+
 
 var addFishButton = document.getElementById("add-fish");
 
 addFishButton.addEventListener("click", addFish);
 
 var fishes = [];
+var moneys = [];
 
 var interval = setInterval(draw, 10);
+
+class Money{
+    constructor(img, posX, posY, worth){
+        this.img = img;
+        this.posX = posX;
+        this.posY = posY;
+        this.worth = worth;
+    }
+
+    checkCollision() {
+        fishes.forEach(element => {
+            const fishLeft = element.posX;
+            const fishRight = element.posX + element.width;
+            const fishTop = element.posY;
+            const fishBottom = element.posY + element.height;
+
+            const moneyLeft = this.posX;
+            const moneyRight = this.posX + 20; // 20 is coin width
+            const moneyTop = this.posY;
+            const moneyBottom = this.posY + 20; // 20 is coin height
+
+            const isColliding = (
+                fishLeft < moneyRight &&
+                fishRight > moneyLeft &&
+                fishTop < moneyBottom &&
+                fishBottom > moneyTop
+            );
+
+            if (isColliding) {
+                console.log("collision");
+                money += this.worth;
+                this.posX = getRandomInt(c.width);
+                this.posY = getRandomInt(c.height);
+            }
+        });
+    }
+
+}
 
 
 class Fish {
@@ -44,10 +89,13 @@ class Fish {
         switch(this.state){
             case "IDLE":
                 this.idle();
+                break;
             case "SWIM":
                 this.swim();
+                break;
             default:
                 this.idle();
+                break;
 
         }
     }
@@ -92,13 +140,24 @@ class Fish {
     }
 
     randomSwitchState(new_state){
+        if(new_state == "SWIM"){
+            return (getRandomInt(40) == 0) ? new_state : this.state;
+        }
+        if(new_state == "IDLE"){
+            return (getRandomInt(400) == 0) ? new_state : this.state;
+        }
         return (getRandomInt(100) == 0) ? new_state : this.state;
     }
 }
 
 function addFish(){
-    console.log("add fish :)")
-    fishes.push(new Fish(fish, 0, 0, 150, 150));
+    console.log("add fish :) cost: 100")
+    if(money >= 100){
+        fishes.push(new Fish(fish, 0, 0, (c.width / 5), (c.height /5)));
+        money -= 100;
+        moneys.push(new Money(moneyImg, 460, 400, 50));
+    }
+    
 }
 
 function draw(){
@@ -108,6 +167,13 @@ function draw(){
         element.doThing();
         ctx.drawImage(element.img, element.posX, element.posY, element.width, element.height);
     });
+
+    moneys.forEach(element => {
+        element.checkCollision();
+        ctx.drawImage(element.img, element.posX, element.posY, 20, 20)
+    })
+
+    moneyText.innerHTML = "Money: " + money;
 }
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);

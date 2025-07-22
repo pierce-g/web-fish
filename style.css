@@ -2,10 +2,15 @@
     margin: auto;
     text-align: center;
     padding-top: 20px;
+    width: 70%;
 }
 
 canvas {
     border: 1px solid #000000;
     border-radius: 5px;
     background-color: aqua;
+}
+
+body {
+    font-family: sans-serif;
 }
