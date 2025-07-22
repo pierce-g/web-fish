@@ -45,6 +45,10 @@ class Decoration{
         this.placed = false;
     }
 
+    draw(){
+        ctx.drawImage(this.img, this.posX, this.posY, 100,100);
+    }
+
     exist(){
         if(!this.placed){
             this.posY = c.height-100;
@@ -59,6 +63,10 @@ class Money{
         this.posX = posX;
         this.posY = posY;
         this.worth = worth;
+    }
+
+    draw(){
+        ctx.drawImage(this.img, this.posX, this.posY, 20, 20);
     }
 
     checkCollision() {
@@ -101,11 +109,29 @@ class Fish {
         this.height = height;
         this.state = "IDLE"
         this.name = name;
+        this.rotation = 0;
+        this.backflipping = false;
         
         this.targetPos = [0,0];
         this.reachedTarget = true;
 
         this.states = ["SWIM", "IDLE", "FEEDING"]
+    }
+
+    draw(){
+        if(!this.backflipping){
+            ctx.drawImage(this.img, this.posX, this.posY, this.width, this.height);
+            ctx.fillText(this.name, this.posX+(this.width/2), this.posY);
+        }
+        else{
+            ctx.save();
+            ctx.translate(this.posX + this.width/2, this.posY + this.height/2);
+            ctx.rotate(this.rotation * Math.PI / 180);
+            ctx.drawImage(this.img, -this.width/2, -this.height/2, this.width, this.height);
+            ctx.fillText(this.name, 0, -this.height/2);
+            ctx.restore();
+        }
+        
     }
 
     swim(swimX, swimY){
@@ -129,6 +155,9 @@ class Fish {
             case "SWIM":
                 this.swim();
                 break;
+            case "BACKFLIP":
+                this.backflip();
+                break;
             default:
                 this.idle();
                 break;
@@ -136,8 +165,20 @@ class Fish {
         }
     }
 
+    backflip(){
+        if(this.rotation < 360){
+            this.backflipping = true;
+            this.rotation += 5;
+        }
+        else{
+            this.rotation = 0;
+            this.backflipping = false;
+            this.state = "SWIM";
+        }
+    }
+
     idle(){
-        this.state = this.randomSwitchState("SWIM");
+        this.state = this.randomSwitchState("BACKFLIP");
     }
 
     swim(){
@@ -174,7 +215,7 @@ class Fish {
     }
 
     randomSwitchState(new_state){
-        if(new_state == "SWIM"){
+        if(new_state == "BACKFLIP"){
             return (getRandomInt(40) == 0) ? new_state : this.state;
         }
         if(new_state == "IDLE"){
@@ -206,18 +247,17 @@ function draw(){
     
     fishes.forEach(element => {
         element.doThing();
-        ctx.drawImage(element.img, element.posX, element.posY, element.width, element.height);
-        ctx.fillText(element.name, element.posX+(element.width/2), element.posY);
+        element.draw();
     });
 
     moneys.forEach(element => {
         element.checkCollision();
-        ctx.drawImage(element.img, element.posX, element.posY, 20, 20);
+        element.draw()
     })
 
     decorations.forEach(element => {
         element.exist();
-        ctx.drawImage(element.img, element.posX, element.posY, 100,100);
+        element.draw();
     })
 
     moneyText.innerHTML = "Money: " + money;
