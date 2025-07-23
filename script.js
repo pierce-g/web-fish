@@ -23,11 +23,13 @@ var decorations = [];
 
 var interval = setInterval(draw, 10);
 
+
 c.addEventListener("mousemove", function(evt) {
     mousePos = getMousePos(c, evt);
 });
 
 c.addEventListener('click', mouseClick);
+
 
 function mouseClick(){
     decorations.forEach(element => {
@@ -173,6 +175,7 @@ class Fish {
         else{
             this.rotation = 0;
             this.backflipping = false;
+            money += 5;
             this.state = "SWIM";
         }
     }
@@ -230,7 +233,6 @@ function addFish(){
     if(money >= 100){
         fishes.push(new Fish(fish, 0, 0, (c.width / 5), (c.height /5), fishName.value));
         money -= 100;
-        moneys.push(new Money(moneyImg, 460, 400, 50));
     }
     
 }
